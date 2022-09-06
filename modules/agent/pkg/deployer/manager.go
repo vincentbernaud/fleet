@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 	apierror "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"strings"
 )
 
 type Manager struct {
@@ -49,7 +50,10 @@ func (m *Manager) releaseName(bd *fleet.BundleDeployment) string {
 		ns = bd.Spec.Options.DefaultNamespace
 	}
 	if bd.Spec.Options.Helm == nil || bd.Spec.Options.Helm.ReleaseName == "" {
-		return ns + "/" + bd.Name
+		idx := strings.LastIndex(bd.Status.Release, ":")
+		rn := bd.Status.Release[:idx]
+		return ns + "/" + rn
+		//return ns + "/" + bd.Name
 	}
 	return ns + "/" + bd.Spec.Options.Helm.ReleaseName
 }
